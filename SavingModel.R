@@ -25,3 +25,12 @@ predictions_loaded_model <- predict(loaded_rf_model, newdata = new_data)
 
 # Print predictions
 print(predictions_loaded_model)
+
+prediction_numeric <- predict(loaded_rf_model, newdata = new_data)
+
+# Map numeric prediction to factor levels
+prediction_factor <- ifelse(prediction_numeric <= 1.5, "Low", 
+                            ifelse(prediction_numeric <= 2.5, "Moderate", "High"))
+
+# Print the prediction as a factor
+print(prediction_factor)
