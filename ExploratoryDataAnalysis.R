@@ -85,3 +85,48 @@ chi_sq_test <- chisq.test(contingency_table)
 print("Chi-squared Test Result:")
 print(chi_sq_test)
 
+# Load required libraries
+library(ggplot2)
+
+# 1. Univariate Plots
+# Histogram for a numerical variable (Adaptivity_Level)
+ggplot(EducationData, aes(x = Adaptivity_Level)) +
+  geom_histogram(binwidth = 0.5, fill = "blue", color = "black") +
+  labs(title = "Histogram of Adaptivity Level", x = "Adaptivity Level", y = "Count") +
+  theme_minimal()
+
+# Bar plot for a categorical variable (Gender)
+ggplot(EducationData, aes(x = Gender)) +
+  geom_bar(fill = "green", color = "black") +
+  labs(title = "Bar Plot of Gender", x = "Gender", y = "Count") +
+  theme_minimal()
+
+# Boxplot for a numerical variable (Adaptivity_Level by Gender)
+ggplot(EducationData, aes(x = Gender, y = Adaptivity_Level, fill = Gender)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Adaptivity Level by Gender", x = "Gender", y = "Adaptivity Level") +
+  theme_minimal()
+
+# 2. Multivariate Plots
+# Scatter plot (Financial Condition vs. Adaptivity Level)
+ggplot(EducationData, aes(x = as.numeric(Financial_Condition), y = Adaptivity_Level)) +
+  geom_point(color = "blue", alpha = 0.7) +
+  geom_smooth(method = "lm", color = "red", se = FALSE) +
+  labs(title = "Scatter Plot of Financial Condition vs. Adaptivity Level", 
+       x = "Financial Condition", y = "Adaptivity Level") +
+  theme_minimal()
+
+# Stacked bar plot (Gender and Device)
+ggplot(EducationData, aes(x = Gender, fill = Device)) +
+  geom_bar(position = "stack") +
+  labs(title = "Stacked Bar Plot of Gender and Device", x = "Gender", y = "Count") +
+  theme_minimal()
+
+# Faceted plot (Adaptivity Level by Internet Type)
+ggplot(EducationData, aes(x = Internet_Type, y = Adaptivity_Level, fill = Internet_Type)) +
+  geom_boxplot() +
+  facet_wrap(~ Gender) +
+  labs(title = "Boxplot of Adaptivity Level by Internet Type (Faceted by Gender)",
+       x = "Internet Type", y = "Adaptivity Level") +
+  theme_minimal()
+
