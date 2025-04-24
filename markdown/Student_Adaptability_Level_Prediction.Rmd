@@ -1,0 +1,421 @@
+---
+title: "Student Adaptability Level Prediction"
+author: "Trevor Okinda"
+date: "2024"
+output:
+  github_document: 
+    toc: yes
+    toc_depth: 4
+    fig_width: 6
+    fig_height: 4
+    df_print: default
+editor_options:
+  chunk_output_type: console
+---
+
+# Student Details
+
+|                                              |     |
+|----------------------------------------------|-----|
+| **Student ID Number**                        | 134780 |
+| **Student Name**                             | Trevor Okinda |
+| **BBIT 4.2 Group**                           | C |
+| **Project Name**                             | Student Adaptability Level Prediction |
+
+# Setup Chunk
+
+**Note:** the following KnitR options have been set as the global defaults: <BR> `knitr::opts_chunk$set(echo = TRUE, warning = FALSE, eval = TRUE, collapse = FALSE, tidy = TRUE)`.
+
+More KnitR options are documented here <https://bookdown.org/yihui/rmarkdown-cookbook/chunk-options.html> and here <https://yihui.org/knitr/options/>.
+
+```{r setup, include=FALSE}
+library(formatR)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  collapse = FALSE
+)
+```
+
+### Source: 
+
+The dataset that was used can be downloaded here: *\<https://www.kaggle.com/datasets/mdmahmudulhasansuzan/students-adaptability-level-in-online-education\>*
+
+### Reference:
+
+*\<Md. Mahmudul Hasan Suzan. (n.d.). Students’ Adaptability Level in Online Education [Data set]. Kaggle. https://www.kaggle.com/datasets/mdmahmudulhasansuzan/students-adaptability-level-in-online-education\>\
+Refer to the APA 7th edition manual for rules on how to cite datasets: <https://apastyle.apa.org/style-grammar-guidelines/references/examples/data-set-references>*
+
+
+# Understanding the Dataset (Exploratory Data Analysis (EDA))
+
+## Loading the Dataset
+```{r Load dataset}
+# Load the dataset
+EducationData <- read.csv("students_adaptability_level_online_education.csv", colClasses = c(
+  Gender = "factor",
+  Education_Level = "factor",
+  Institution_Type = "factor",
+  IT_Student = "factor",
+  Location = "factor",
+  Load_shedding = "factor",
+  Financial_Condition = "factor",
+  Internet_Type = "factor",
+  Network_Type = "factor",
+  Self_Lms = "factor",
+  Device = "factor",
+  Adaptivity_Level = "factor"
+))
+
+# Display structure to verify data types
+str(EducationData)
+
+# Display first few rows to ensure data is loaded correctly
+head(EducationData)
+
+# View the dataset in a spreadsheet-like interface (optional)
+View(EducationData)
+```
+
+## Measures of Frequency
+```{r MOF}
+# Load required libraries
+library(DescTools)  # For Mode function
+
+# 1. Measures of Frequency
+gender_frequency <- table(EducationData$Gender)
+education_level_frequency <- table(EducationData$Education_Level)
+
+print("Frequency Tables:")
+print(gender_frequency)
+print(education_level_frequency)
+
+# Relative frequency
+gender_relative_freq <- prop.table(gender_frequency)
+education_level_relative_freq <- prop.table(education_level_frequency)
+
+print("Relative Frequencies:")
+print(gender_relative_freq)
+print(education_level_relative_freq)
+```
+
+## Measures of Central Tendency
+```{r MOCT}
+# 2. Measures of Central Tendency
+# Recode Adaptivity_Level to numeric for numerical operations
+EducationData$Adaptivity_Level <- as.numeric(factor(EducationData$Adaptivity_Level, 
+                                                    levels = c("Low", "Moderate", "High")))
+
+mean_adaptivity <- mean(EducationData$Adaptivity_Level, na.rm = TRUE)
+median_adaptivity <- median(EducationData$Adaptivity_Level, na.rm = TRUE)
+mode_adaptivity <- Mode(EducationData$Adaptivity_Level, na.rm = TRUE)
+
+print(paste("Mean Adaptivity Level:", mean_adaptivity))
+print(paste("Median Adaptivity Level:", median_adaptivity))
+print(paste("Mode Adaptivity Level:", mode_adaptivity))
+```
+
+## Measures of Distribution
+```{r MOD}
+# 3. Measures of Distribution
+range_adaptivity <- range(EducationData$Adaptivity_Level, na.rm = TRUE)
+variance_adaptivity <- var(EducationData$Adaptivity_Level, na.rm = TRUE)
+sd_adaptivity <- sd(EducationData$Adaptivity_Level, na.rm = TRUE)
+quantiles_adaptivity <- quantile(EducationData$Adaptivity_Level, na.rm = TRUE)
+
+print(paste("Range:", range_adaptivity[1], "to", range_adaptivity[2]))
+print(paste("Variance:", variance_adaptivity))
+print(paste("Standard Deviation:", sd_adaptivity))
+print("Quantiles:")
+print(quantiles_adaptivity)
+```
+
+## Measures of Relationship
+```{r MOR}
+# 4. Measures of Relationship
+# Correlation (numerical relationship)
+correlation <- cor(as.numeric(EducationData$Financial_Condition), 
+                   EducationData$Adaptivity_Level, 
+                   use = "complete.obs")
+
+print(paste("Correlation between Financial Condition and Adaptivity Level:", correlation))
+
+# Contingency table (categorical relationship)
+contingency_table <- table(EducationData$Gender, EducationData$Device)
+print("Contingency Table:")
+print(contingency_table)
+
+# Chi-squared test for independence
+chi_sq_test <- chisq.test(contingency_table)
+print("Chi-squared Test Result:")
+print(chi_sq_test)
+
+```
+
+## Plots
+```{r Plots}
+# Load required libraries
+library(ggplot2)
+
+# 1. Univariate Plots
+# Histogram for a numerical variable (Adaptivity_Level)
+ggplot(EducationData, aes(x = Adaptivity_Level)) +
+  geom_histogram(binwidth = 0.5, fill = "blue", color = "black") +
+  labs(title = "Histogram of Adaptivity Level", x = "Adaptivity Level", y = "Count") +
+  theme_minimal()
+
+# Bar plot for a categorical variable (Gender)
+ggplot(EducationData, aes(x = Gender)) +
+  geom_bar(fill = "green", color = "black") +
+  labs(title = "Bar Plot of Gender", x = "Gender", y = "Count") +
+  theme_minimal()
+
+# Boxplot for a numerical variable (Adaptivity_Level by Gender)
+ggplot(EducationData, aes(x = Gender, y = Adaptivity_Level, fill = Gender)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Adaptivity Level by Gender", x = "Gender", y = "Adaptivity Level") +
+  theme_minimal()
+
+# 2. Multivariate Plots
+# Scatter plot (Financial Condition vs. Adaptivity Level)
+ggplot(EducationData, aes(x = as.numeric(Financial_Condition), y = Adaptivity_Level)) +
+  geom_point(color = "blue", alpha = 0.7) +
+  geom_smooth(method = "lm", color = "red", se = FALSE) +
+  labs(title = "Scatter Plot of Financial Condition vs. Adaptivity Level", 
+       x = "Financial Condition", y = "Adaptivity Level") +
+  theme_minimal()
+
+# Stacked bar plot (Gender and Device)
+ggplot(EducationData, aes(x = Gender, fill = Device)) +
+  geom_bar(position = "stack") +
+  labs(title = "Stacked Bar Plot of Gender and Device", x = "Gender", y = "Count") +
+  theme_minimal()
+
+# Faceted plot (Adaptivity Level by Internet Type)
+ggplot(EducationData, aes(x = Internet_Type, y = Adaptivity_Level, fill = Internet_Type)) +
+  geom_boxplot() +
+  facet_wrap(~ Gender) +
+  labs(title = "Boxplot of Adaptivity Level by Internet Type (Faceted by Gender)",
+       x = "Internet Type", y = "Adaptivity Level") +
+  theme_minimal()
+
+
+```
+
+# Preprocessing and Data Transformation
+## Missing Values
+```{r missingness}
+# Check for missing values in the dataset
+missing_values_summary <- colSums(is.na(EducationData))
+
+# Display the summary of missing values per column
+print("Summary of Missing Values:")
+print(missing_values_summary)
+
+# Check if the dataset contains any missing values
+any_missing <- any(is.na(EducationData))
+
+if (any_missing) {
+  print("The dataset contains missing values.")
+} else {
+  print("The dataset has no missing values.")
+}
+
+```
+
+# Training Model
+## Data Splitting
+```{r Data Splitting}
+# Load required libraries
+library(caret)  # For cross-validation and data splitting
+library(boot)   # For bootstrapping
+
+# Load dataset
+set.seed(123)  # Set seed for reproducibility
+
+# 1. Data Splitting
+# Split data into training (70%) and testing (30%) sets
+train_index <- createDataPartition(EducationData$Adaptivity_Level, p = 0.7, list = FALSE)
+train_data <- EducationData[train_index, ]
+test_data <- EducationData[-train_index, ]
+
+print("Training and Testing Data Summary:")
+print(paste("Training Data Rows:", nrow(train_data)))
+print(paste("Testing Data Rows:", nrow(test_data)))
+
+```
+
+## Bootstrapping
+```{r Bootstrapping}
+# 2. Bootstrapping
+# Define a function to calculate a statistic (e.g., mean of Adaptivity_Level)
+bootstrap_function <- function(data, indices) {
+  d <- data[indices, ]  # Resample with replacement
+  return(mean(d$Adaptivity_Level, na.rm = TRUE))
+}
+
+# Apply bootstrapping with 1000 resamples
+bootstrap_results <- boot(data = train_data, statistic = bootstrap_function, R = 1000)
+
+print("Bootstrapping Results:")
+print(bootstrap_results)
+```
+
+## Cross-validation
+```{r Cross-validation}
+# 3. Cross-validation
+# Basic k-fold cross-validation (k = 10)
+cv_control <- trainControl(method = "cv", number = 10)
+cv_model <- train(Adaptivity_Level ~ ., data = train_data, method = "lm", trControl = cv_control)
+
+print("Basic Cross-validation Results:")
+print(cv_model)
+
+# Repeated k-fold cross-validation (k = 10, repeated 5 times)
+repeated_cv_control <- trainControl(method = "repeatedcv", number = 10, repeats = 5)
+repeated_cv_model <- train(Adaptivity_Level ~ ., data = train_data, method = "lm", trControl = repeated_cv_control)
+
+print("Repeated Cross-validation Results:")
+print(repeated_cv_model)
+
+# Leave-One-Out Cross-Validation (LOOCV)
+loocv_control <- trainControl(method = "LOOCV")
+loocv_model <- train(Adaptivity_Level ~ ., data = train_data, method = "lm", trControl = loocv_control)
+
+print("LOOCV Results:")
+print(loocv_model)
+```
+
+## Training Different Models
+```{r Training Different Models}
+# Load required libraries
+library(caret)       # For data splitting and model training
+library(rpart)       # For Decision Tree
+library(randomForest) # For Random Forest
+
+# Set seed for reproducibility
+set.seed(123)
+
+# Split data into training and testing sets (70-30 split)
+train_index <- createDataPartition(EducationData$Adaptivity_Level, p = 0.7, list = FALSE)
+train_data <- EducationData[train_index, ]
+test_data <- EducationData[-train_index, ]
+
+# 1. Linear Regression
+linear_model <- train(
+  Adaptivity_Level ~ ., 
+  data = train_data, 
+  method = "lm",
+  trControl = trainControl(method = "cv", number = 10)  # 10-fold CV
+)
+
+print("Linear Regression Model:")
+print(linear_model)
+
+# 2. Decision Tree Regression
+tree_model <- train(
+  Adaptivity_Level ~ ., 
+  data = train_data, 
+  method = "rpart",
+  trControl = trainControl(method = "cv", number = 10)  # 10-fold CV
+)
+
+print("Decision Tree Regression Model:")
+print(tree_model)
+
+# 3. Random Forest Regression
+rf_model <- train(
+  Adaptivity_Level ~ ., 
+  data = train_data, 
+  method = "rf",
+  trControl = trainControl(method = "cv", number = 10),  # 10-fold CV
+  tuneLength = 5  # Test 5 different values of mtry
+)
+
+print("Random Forest Regression Model:")
+print(rf_model)
+
+# Evaluate all models on the test data
+linear_predictions <- predict(linear_model, newdata = test_data)
+tree_predictions <- predict(tree_model, newdata = test_data)
+rf_predictions <- predict(rf_model, newdata = test_data)
+
+# Calculate performance metrics for all models
+linear_rmse <- RMSE(linear_predictions, test_data$Adaptivity_Level)
+tree_rmse <- RMSE(tree_predictions, test_data$Adaptivity_Level)
+rf_rmse <- RMSE(rf_predictions, test_data$Adaptivity_Level)
+
+print(paste("Linear Regression RMSE:", linear_rmse))
+print(paste("Decision Tree RMSE:", tree_rmse))
+print(paste("Random Forest RMSE:", rf_rmse))
+```
+
+## Model Performance Comparison using resamples
+```{r Performance Comparison}
+# Compare model performance using resamples
+models <- list(
+  Linear_Regression = linear_model,
+  Decision_Tree = tree_model,
+  Random_Forest = rf_model
+)
+
+# Resample models to compare performance
+resample_results <- resamples(models)
+
+# Summary of resampling results
+summary(resample_results)
+
+# Boxplot for performance metrics
+bwplot(resample_results, layout = c(3, 1))
+
+# Dot plot for performance metrics
+dotplot(resample_results, layout = c(3, 1))
+
+# Pairwise comparison of model performance (optional)
+model_diff <- diff(resample_results)
+summary(model_diff)
+
+
+```
+
+## Saving Model
+```{r Saving Model}
+# Saving the model
+saveRDS(rf_model, "./models/saved_rf_model.rds")
+
+# Load the saved model
+loaded_rf_model <- readRDS("./models/saved_rf_model.rds")
+
+# Example data for predictions
+new_data <- data.frame(
+  Gender = "Boy", 
+  Education_Level = "University", 
+  Institution_Type = "Non Government", 
+  IT_Student = "No", 
+  Location = "Yes", 
+  Load_shedding = "Low", 
+  Financial_Condition = "Mid", 
+  Internet_Type = "Wifi", 
+  Network_Type = "4G", 
+  Self_Lms = "No", 
+  Device = "Tab", 
+  Adaptivity_Level = "Moderate"
+)
+
+# Use the loaded model to make predictions
+predictions_loaded_model <- predict(loaded_rf_model, newdata = new_data)
+
+# Print predictions
+print(predictions_loaded_model)
+
+prediction_numeric <- predict(loaded_rf_model, newdata = new_data)
+
+# Map numeric prediction to factor levels
+prediction_factor <- ifelse(prediction_numeric <= 1.5, "Low", 
+                            ifelse(prediction_numeric <= 2.5, "Moderate", "High"))
+
+# Print the prediction as a factor
+print(prediction_factor)
+
+```
+
+
